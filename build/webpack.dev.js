@@ -30,13 +30,43 @@ module.exports = merge(common, {
     module:{
         rules: [    //从下到上，从右到左解析
             //处理sass，scss，css
+            // {
+            //     test: /\.(sa|sc|c)ss$/,
+            //     use: ['style-loader', 'css-loader']    //使用多个loader用use
+            // },
             {
-                test: /\.(sa|sc|c)ss$/,
-                use: ['style-loader', 'css-loader']    //使用多个loader用use
-            }
+                test: /\.(css)$/i,
+                use: ["style-loader", "css-loader"],
+            },
+            {
+                test: /\.(scss)$/,
+                use: [{
+                    loader: 'style-loader', // inject CSS to page
+                }, {
+                    loader: 'css-loader', // translates CSS into CommonJS modules
+                }, {
+                    loader: 'postcss-loader', // Run post css actions
+                    options: {
+                        plugins: function () { // post css plugins, can be exported to postcss.config.js
+                            return [
+                                require('precss'),
+                                require('autoprefixer')
+                            ];
+                        }
+                    }
+                }, {
+                    loader: 'sass-loader' // compiles SASS to CSS
+                }]
+            },
         ]
     },
     plugins: [
-        new webpack.HotModuleReplacementPlugin() //devServer中设置hot：true时必须使用此插件
+        new webpack.HotModuleReplacementPlugin(), //devServer中设置hot：true时必须使用此插件
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+            "window.jQuery": "jquery",
+            Popper: ['popper.js', 'default'],
+        })
     ],
 })

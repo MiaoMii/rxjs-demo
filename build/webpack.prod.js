@@ -6,10 +6,13 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = merge(common, {
-    mode: 'production',
+    // mode: 'production',
+    mode:'none',
     output: {
-        filename: 'js/[name]_[contenthash].js',  // 入口和内容hash组成的文件名，也可以是hash
-        chunkFilename: 'js/[name]_[contenthash].chunk.js',  //非入口文件的名称
+        // filename: 'js/[name]_[contenthash].js',  // 入口和内容hash组成的文件名，也可以是hash
+        // chunkFilename: 'js/[name]_[contenthash].chunk.js',  //非入口文件的名称
+        filename: 'js/bundle.js',  // 入口和内容hash组成的文件名，也可以是hash
+        chunkFilename: 'js/[name].js',
         path: path.resolve(__dirname, '../dist')  //导出文件的路径
     },
     optimization: {
@@ -38,12 +41,36 @@ module.exports = merge(common, {
     ],
     module: {
         rules: [     // loader解析的顺序是从下到上，从右到左的顺序
+            // {
+            //     test: /\.(sa|sc|c)ss$/,   //sass，scss，css
+            //     use: [
+            //         'style-loader',
+            //         'css-loader'
+            //     ]
+            // },
             {
-                test: /\.(sa|sc|c)ss$/,   //sass，scss，css
-                use: [
-                    'style-loader',
-                    'css-loader'
-                ]
+                test: /\.(css)$/i,
+                use: ["style-loader", "css-loader"],
+            },
+            {
+                test: /\.(scss)$/,
+                use: [{
+                    loader: 'style-loader', // inject CSS to page
+                }, {
+                    loader: 'css-loader', // translates CSS into CommonJS modules
+                }, {
+                    loader: 'postcss-loader', // Run post css actions
+                    options: {
+                        plugins: function () { // post css plugins, can be exported to postcss.config.js
+                            return [
+                                require('precss'),
+                                require('autoprefixer')
+                            ];
+                        }
+                    }
+                }, {
+                    loader: 'sass-loader' // compiles SASS to CSS
+                }]
             },
             {
                 test: /\.css$/i,
